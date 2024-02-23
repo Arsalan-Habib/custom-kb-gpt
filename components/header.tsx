@@ -10,7 +10,7 @@ export function Header() {
     <header className="sticky top-0 z-50 flex items-center justify-between w-full h-16 px-4 border-b shrink-0 bg-gradient-to-b from-background/10 via-background/50 to-background/80 backdrop-blur-xl">
       <Link className="flex items-center space-x-2" href="/">
         <span className="text-xl font-bold tracking-tight text-foreground">
-          Harry Potter GPT
+          Your Personal GPT
         </span>
       </Link>
       <div className="flex items-center justify-end space-x-2">
