@@ -6,16 +6,17 @@ import { IconArrowRight } from '@/components/ui/icons'
 
 const exampleMessages = [
   {
-    heading: 'Explain technical concepts',
-    message: `What is a "serverless function"?`
+    heading: 'What is the monthly service fees?',
+    message: `What is the monthly service fees?`
   },
   {
-    heading: 'Summarize an article',
-    message: 'Summarize the following article for a 2nd grader: \n'
+    heading: 'What is my current account balance?',
+    message:
+      'My account number is 1234567890, what is my current account balance?'
   },
   {
-    heading: 'Draft an email',
-    message: `Draft an email to my boss about the following: \n`
+    heading: 'Can you get my recent transaction history?',
+    message: `Please share my transaction history of the last week. \n`
   }
 ]
 
