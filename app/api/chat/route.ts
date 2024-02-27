@@ -65,9 +65,47 @@ const transferFundsTool = new DynamicTool({
   }
 })
 
+function iteratorToStream(iterator: any) {
+  return new ReadableStream({
+    async pull(controller) {
+      const { value, done } = await iterator.next()
+
+      if (done) {
+        controller.close()
+      } else {
+        controller.enqueue(value)
+      }
+    }
+  })
+}
+
+const encoder = new TextEncoder()
+
+const sleep = async (time: number) => {
+  return new Promise(resolve => setTimeout(resolve, time))
+}
+
+async function* makeIterator(res: any) {
+  for await (const event of res) {
+    const eventType = event.event
+
+    if (eventType === 'on_llm_stream') {
+      const content = event.data?.chunk?.message?.content
+      // Empty content in the context of OpenAI means
+      // that the model is asking for a tool to be invoked via function call.
+      // So we only print non-empty content
+      if (content !== undefined && content !== '') {
+        yield encoder.encode(`${content}`)
+        await sleep(20)
+      }
+    }
+  }
+}
+
 const model = new ChatOpenAI({
   modelName: 'gpt-3.5-turbo',
-  temperature: 0
+  temperature: 0,
+  streaming: true
 })
 const pinecone = new Pinecone()
 
@@ -135,18 +173,22 @@ export async function POST(req: Request) {
       historyMessagesKey: 'chat_history'
     })
 
-    const res = await agentWithChatHistory.invoke(
+    const res = agentWithChatHistory.streamEvents(
       {
         input: question
       },
       {
+        version: 'v1',
         configurable: {
           sessionId
         }
       }
     )
 
-    return new StreamingTextResponse(res.output)
+    const iterator = makeIterator(res)
+    const stream = iteratorToStream(iterator)
+
+    return new StreamingTextResponse(stream)
   } catch (error) {
     console.error('error', error)
     console.trace(error)
